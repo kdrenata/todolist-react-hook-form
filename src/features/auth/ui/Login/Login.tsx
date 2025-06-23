@@ -9,15 +9,11 @@ import FormGroup from '@mui/material/FormGroup'
 import FormLabel from '@mui/material/FormLabel'
 import Grid from "@mui/material/Grid2"
 import TextField from '@mui/material/TextField'
-import { Controller, SubmitHandler, useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import s from './Login.module.css'
+import { LoginInputs, loginSchema } from "@/features/auth/lib/schemas/loginSchema.ts"
+import { zodResolver } from "@hookform/resolvers/zod"
 
-
-type Inputs = {
-  email: string
-  password: string
-  rememberMe: boolean
-}
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
@@ -29,10 +25,12 @@ export const Login = () => {
     formState: { errors },
     control,
     reset,
-  } = useForm<Inputs>({defaultValues: {email: '', password: '', rememberMe: false}});
-  console.log(errors)
+  } = useForm<LoginInputs>({
+    defaultValues: {email: '', password: '', rememberMe: false},
+    resolver: zodResolver(loginSchema),
+  })
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
+  const onSubmit = (data: LoginInputs) => {
     console.log(data)
     reset()
   }
@@ -66,14 +64,7 @@ export const Login = () => {
               label="Email"
               margin="normal"
               error={!!errors.email}
-              {...register("email", {
-                required: { value: true, message: "Required" },
-                pattern: {
-                  // регулярное выражение
-                  value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                  message: "Incorrect email address",
-                },
-              })}
+              {...register("email")}
             />
             {errors.email && <span className={s.errorMessage}>{errors.email.message}</span>}
             <TextField type="password" label="Password" margin="normal" {...register("password")} />
